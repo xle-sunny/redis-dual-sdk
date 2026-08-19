@@ -58,6 +58,10 @@ public class RedisSdkTemplate {
         return writeClient(key).hset(key, hash);
     }
 
+    public long hsetnx(String key, String field, String value) {
+        return writeClient(key).hsetnx(key, field, value);
+    }
+
     public long hdel(String key, String... fields) {
         return writeClient(key).hdel(key, fields);
     }
@@ -96,6 +100,10 @@ public class RedisSdkTemplate {
 
     public long expire(String key, long seconds) {
         return writeClient(key).expire(key, seconds);
+    }
+
+    public long persist(String key) {
+        return writeClient(key).persist(key);
     }
 
     // ================= 读操作（Jedis 优先 + 数据不全回源 DBAPI） =================
@@ -138,6 +146,34 @@ public class RedisSdkTemplate {
                 v -> v != null && v.size() == fields.length && !v.contains(null));
     }
 
+    public Set<String> hkeys(String key) {
+        return read(key, c -> c.hkeys(key), v -> v != null && !v.isEmpty());
+    }
+
+    public List<String> hvals(String key) {
+        return read(key, c -> c.hvals(key), v -> v != null && !v.isEmpty());
+    }
+
+    public boolean hexists(String key, String field) {
+        return read(key, c -> c.hexists(key, field), v -> v != null && v);
+    }
+
+    public long hlen(String key) {
+        return read(key, c -> c.hlen(key), v -> v != null && v >= 0);
+    }
+
+    public long hstrlen(String key, String field) {
+        return read(key, c -> c.hstrlen(key, field), v -> v != null && v >= 0);
+    }
+
+    public List<String> hrandfield(String key, int count) {
+        return read(key, c -> c.hrandfield(key, count), v -> v != null && !v.isEmpty());
+    }
+
+    public Map<String, String> hscan(String key, String cursor, String match, int count) {
+        return read(key, c -> c.hscan(key, cursor, match, count), v -> v != null && !v.isEmpty());
+    }
+
     public List<String> lrange(String key, long start, long stop) {
         return read(key, c -> c.lrange(key, start, stop), v -> v != null && !v.isEmpty());
     }
@@ -156,6 +192,11 @@ public class RedisSdkTemplate {
 
     public long ttl(String key) {
         return read(key, c -> c.ttl(key), v -> v != null && v >= 0);
+    }
+
+    public List<String> scan(String cursor, String match, int count) {
+        // scan操作使用cursor作为路由key，因为scan不基于具体key
+        return read(cursor, c -> c.scan(cursor, match, count), v -> v != null && !v.isEmpty());
     }
 
     // ================= 内部路由 =================

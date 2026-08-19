@@ -30,11 +30,27 @@ public interface RedisClient {
 
     long hset(String key, Map<String, String> hash);
 
+    long hsetnx(String key, String field, String value);
+
     Map<String, String> hgetAll(String key);
 
     List<String> hmget(String key, String... fields);
 
     long hdel(String key, String... fields);
+
+    Set<String> hkeys(String key);
+
+    List<String> hvals(String key);
+
+    boolean hexists(String key, String field);
+
+    long hlen(String key);
+
+    long hstrlen(String key, String field);
+
+    List<String> hrandfield(String key, int count);
+
+    Map<String, String> hscan(String key, String cursor, String match, int count);
 
     // ---------- List ----------
     long lpush(String key, String... values);
@@ -67,4 +83,8 @@ public interface RedisClient {
     long expire(String key, long seconds);
 
     long ttl(String key);
+
+    long persist(String key);
+
+    List<String> scan(String cursor, String match, int count);
 }
